@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Calendar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 40px;
+    }
+    .calendar {
+      width: 350px;
+      margin: 0 auto;
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .calendar-header button {
+      background-color: #007bff;
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .calendar-header h2 {
+      margin: 0;
+    }
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background-color: #f1f1f1;
+      padding: 10px 0;
+    }
+    .day-name, .day {
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    .day-name {
+      background-color: #ddd;
+      font-weight: bold;
+    }
+    .today {
+      background-color: #007bff;
+      color: white;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+<div class="calendar">
+  <div class="calendar-header">
+    <button onclick="prevMonth()">&#8592;</button>
+    <h2 id="monthYear"></h2>
+    <button onclick="nextMonth()">&#8594;</button>
+  </div>
+  <div class="days" id="dayNames"></div>
+  <div class="days" id="calendarDays"></div>
+</div>
+
+<script>
+  const monthYear = document.getElementById("monthYear");
+  const dayNames = document.getElementById("dayNames");
+  const calendarDays = document.getElementById("calendarDays");
+
+  let date = new Date();
+
+  const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  function renderDayNames() {
+    dayNames.innerHTML = "";
+    dayLabels.forEach(day => {
+      const div = document.createElement("div");
+      div.classList.add("day-name");
+      div.innerText = day;
+      dayNames.appendChild(div);
+    });
+  }
+
+  function renderCalendar() {
+    calendarDays.innerHTML = "";
+    const year = date.getFullYear();
+    const month = date.getMonth();
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const today = new Date();
+
+    // Empty slots before the first day
+    for (let i = 0; i < firstDay; i++) {
+      const div = document.createElement("div");
+      div.classList.add("day");
+      calendarDays.appendChild(div);
+    }
+
+    // Actual days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const div = document.createElement("div");
+      div.classList.add("day");
+      if (
+        d === today.getDate() &&
+        month === today.getMonth() &&
+        year === today.getFullYear()
+      ) {
+        div.classList.add("today");
+      }
+      div.innerText = d;
+      calendarDays.appendChild(div);
+    }
+
+    monthYear.innerText = `${date.toLocaleString("default", { month: "long" })} ${year}`;
+  }
+
+  function prevMonth() {
+    date.setMonth(date.getMonth() - 1);
+    renderCalendar();
+  }
+
+  function nextMonth() {
+    date.setMonth(date.getMonth() + 1);
+    renderCalendar();
+  }
+
+  renderDayNames();
+  renderCalendar();
+</script>
+
+</body>
+</html>
