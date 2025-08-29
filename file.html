@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transportation Selector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+      padding: 50px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    select {
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    #vehicleImage {
+      margin-top: 30px;
+      max-width: 300px;
+      height: auto;
+      display: none;
+    }
+
+    #selectionText {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Select Your Transportation</h1>
+
+  <select id="vehicleSelect" onchange="updateVehicle()">
+    <option value="">-- Choose --</option>
+    <option value="two">Two-Wheeler</option>
+    <option value="three">Three-Wheeler</option>
+    <option value="four">Four-Wheeler</option>
+  </select>
+
+  <div id="selectionText"></div>
+  <img id="vehicleImage" src="" alt="Vehicle Image"/>
+
+  <script>
+    function updateVehicle() {
+      const select = document.getElementById('vehicleSelect');
+      const image = document.getElementById('vehicleImage');
+      const text = document.getElementById('selectionText');
+      const value = select.value;
+
+      if (value === 'two') {
+        image.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Honda_CB500X_2014.jpg/320px-Honda_CB500X_2014.jpg';
+        text.textContent = "You selected a Two-Wheeler!";
+        image.style.display = 'block';
+      } else if (value === 'three') {
+        image.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Auto_rickshaw_Bangalore.jpg/320px-Auto_rickshaw_Bangalore.jpg';
+        text.textContent = "You selected a Three-Wheeler!";
+        image.style.display = 'block';
+      } else if (value === 'four') {
+        image.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Toyota_Corolla_Altis_1.8_V_Luxury_facelift_2020.jpg/320px-Toyota_Corolla_Altis_1.8_V_Luxury_facelift_2020.jpg';
+        text.textContent = "You selected a Four-Wheeler!";
+        image.style.display = 'block';
+      } else {
+        image.style.display = 'none';
+        text.textContent = "";
+      }
+    }
+  </script>
+
+</body>
+</html>
