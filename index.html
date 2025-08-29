@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Transportation Menu</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --accent:#2563eb;
+      --muted:#6b7280;
+      --success:#10b981;
+      --danger:#ef4444;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: linear-gradient(180deg, var(--bg), #eef5ff 60%);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      color:#0f172a;
+    }
+
+    .app {
+      width:980px;
+      max-width:100%;
+      background:var(--card);
+      border-radius:12px;
+      box-shadow:0 8px 30px rgba(16,24,40,0.08);
+      padding:22px;
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:20px;
+    }
+
+    /* Sidebar (vehicle type buttons) */
+    .sidebar{
+      padding:12px;
+      border-radius:10px;
+      background:linear-gradient(180deg,#fbfdff,#f7fbff);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-bottom:6px;
+    }
+    .brand .logo{
+      height:44px;
+      width:44px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,var(--accent),#7c3aed55);
+      color:white;
+      font-weight:700;
+      font-size:18px;
+    }
+    h2{font-size:16px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .vehicle-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .vehicle-btn{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid transparent;
+      background:transparent;
+      cursor:pointer;
+      transition:all .18s ease;
+      outline:none;
+    }
+    .vehicle-btn:hover{transform:translateY(-3px)}
+    .vehicle-btn.active{
+      background:linear-gradient(90deg,#eef2ff,#f8fafc);
+      border-color:#e6eefc;
+      box-shadow:0 6px 18px rgba(37,99,235,0.08);
+    }
+    .vehicle-icon{
+      height:44px; width:44px; border-radius:8px; display:grid; place-items:center; font-weight:700;
+      background:#f1f5f9; color:#0b1220;
+    }
+    .vehicle-info{flex:1;text-align:left}
+    .vehicle-info b{display:block;font-size:14px}
+    .vehicle-info small{color:var(--muted);font-size:12px}
+
+    /* Main area */
+    .main{
+      padding:18px;
+      border-radius:10px;
+      background:linear-gradient(180deg,#ffffff,#fbfcff);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .header-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .header-row h3{margin:0;font-size:18px}
+    .subtext{color:var(--muted);font-size:13px;margin-top:2px}
+
+    /* Sub-options grid */
+    .options-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:12px;
+    }
+    .card{
+      padding:12px;
+      border-radius:10px;
+      border:1px solid #eef2ff;
+      background:linear-gradient(180deg,#fff,#fbfdff);
+      cursor:pointer;
+      transition:transform .14s ease, box-shadow .14s ease;
+    }
+    .card:hover{transform:translateY(-6px); box-shadow:0 12px 28px rgba(11,20,40,0.06)}
+    .card.selected{border-color:var(--accent); box-shadow:0 10px 30px rgba(37,99,235,0.09)}
+    .card .title{font-weight:600}
+    .price{font-weight:700;font-size:16px;margin-top:8px}
+    .note{font-size:12px;color:var(--muted);margin-top:6px}
+
+    /* Order footer */
+    .order-footer{
+      margin-top:auto;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .total {
+      font-size:16px;
+      color:var(--muted);
+    }
+    .total strong{font-size:20px;color:#08102a;margin-left:8px}
+
+    .btn{
+      padding:10px 14px;
+      border-radius:8px;
+      border:none;
+      background:var(--accent);
+      color:white;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow:0 8px 20px rgba(37,99,235,0.12);
+    }
+    .btn.secondary{
+      background:transparent;
+      color:var(--accent);
+      border:1px solid #e6eefc;
+      box-shadow:none;
+    }
+
+    /* small modal-ish area */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(2,6,23,0.45);
+      z-index:40;
+    }
+    .dialog{
+      background:var(--card);
+      padding:18px;
+      border-radius:10px;
+      width:420px;
+      max-width:92%;
+      box-shadow:0 20px 60px rgba(2,6,23,0.5);
+    }
+    .dialog h4{margin:0 0 6px 0}
+    .dialog label{display:block;font-size:13px;margin-top:8px;color:var(--muted)}
+    .dialog input{
+      width:100%; padding:10px;border-radius:8px;border:1px solid #e6eefc;margin-top:6px;
+      outline:none;
+    }
+    .dialog .dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+    .small{font-size:13px;color:var(--muted);}
+
+    @media (max-width:880px){
+      .app{grid-template-columns:1fr; padding:16px}
+      .sidebar{flex-direction:row; gap:8px; overflow:auto; padding:8px}
+      .vehicle-btn{min-width:160px; flex:0 0 auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Transportation menu">
+    <aside class="sidebar" aria-label="Vehicle types">
+      <div class="brand">
+        <div class="logo">TR</div>
+        <div>
+          <h2>Transit Select</h2>
+          <p class="lead">Choose a vehicle type to start order</p>
+        </div>
+      </div>
+
+      <div class="vehicle-list" id="vehicleList">
+        <!-- Buttons inserted by JS for accessibility -->
+      </div>
+
+      <div style="margin-top:8px;font-size:13px;color:var(--muted)">
+        Tip: click a vehicle type, then pick a variant and click "Complete order".
+      </div>
+    </aside>
+
+    <main class="main" id="mainArea">
+      <div class="header-row">
+        <div>
+          <h3 id="mainTitle">Select a vehicle type</h3>
+          <div class="subtext" id="subText">Available options & pricing will appear here.</div>
+        </div>
+        <div>
+          <button class="btn secondary" id="resetBtn" title="Reset selection">Reset</button>
+        </div>
+      </div>
+
+      <div>
+        <h4 style="margin:0 0 8px 0">Options</h4>
+        <div class="options-grid" id="optionsGrid" aria-live="polite">
+          <!-- option cards go here -->
+          <div class="small">No vehicle selected yet — pick a type on the left.</div>
+        </div>
+      </div>
+
+      <div class="order-footer" aria-label="Order summary">
+        <div class="total">Total: <strong id="totalAmount">₹0</strong></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn secondary" id="viewSummary">View Summary</button>
+          <button class="btn" id="completeOrder">Complete Order</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- modal overlay -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="dialog" role="document">
+      <h4>Complete Order</h4>
+      <div class="small" id="orderSummaryText">Summary goes here.</div>
+
+      <label for="tableInput">Enter table / pickup ID</label>
+      <input id="tableInput" placeholder="e.g., Table 5 or Ride #123" />
+
+      <div class="dialog-actions">
+        <button class="btn secondary" id="cancelDialog">Cancel</button>
+        <button class="btn" id="confirmDialog">Confirm & Pay</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data model for vehicle types and their sub-options
+    const data = [
+      {
+        id: 'two',
+        name: 'Two-wheeler',
+        description: 'Motorbike, scooter — quick & economical',
+        icon: '🛵',
+        options: [
+          { id:'tw-standard', name:'Standard Scooter', price: 80, note:'Up to 2 km' },
+          { id:'tw-fast', name:'Fast Bike', price: 120, note:'Higher speed' },
+          { id:'tw-rental', name:'Hourly Rental', price: 350, note:'Per hour' },
+        ]
+      },
+      {
+        id: 'three',
+        name: 'Three-wheeler',
+        description: 'Auto rickshaw — good for short trips',
+        icon: '🚕',
+        options: [
+          { id:'th-shared', name:'Shared Auto', price: 60, note:'Shared ride' },
+          { id:'th-private', name:'Private Auto', price: 140, note:'Private trip' },
+        ]
+      },
+      {
+        id: 'four',
+        name: 'Four-wheeler',
+        description: 'Car: hatchback, sedan or SUV',
+        icon: '🚗',
+        options: [
+          { id:'fw-hatch', name:'Hatchback', price: 200, note:'Economy car' },
+          { id:'fw-sedan', name:'Sedan', price: 320, note:'Comfort' },
+          { id:'fw-suv', name:'SUV', price: 520, note:'Spacious' },
+        ]
+      }
+    ];
+
+    // DOM refs
+    const vehicleList = document.getElementById('vehicleList');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const mainTitle = document.getElementById('mainTitle');
+    const subText = document.getElementById('subText');
+    const totalAmount = document.getElementById('totalAmount');
+    const completeOrderBtn = document.getElementById('completeOrder');
+    const viewSummaryBtn = document.getElementById('viewSummary');
+    const resetBtn = document.getElementById('resetBtn');
+    const overlay = document.getElementById('overlay');
+    const orderSummaryText = document.getElementById('orderSummaryText');
+    const tableInput = document.getElementById('tableInput');
+    const cancelDialog = document.getElementById('cancelDialog');
+    const confirmDialog = document.getElementById('confirmDialog');
+
+    // state
+    let selectedType = null;
+    let selectedOption = null;
+
+    // utility to format currency
+    function formatRupee(n){ return '₹' + n.toLocaleString('en-IN'); }
+
+    // build sidebar buttons
+    function renderVehicleButtons(){
+      vehicleList.innerHTML = '';
+      data.forEach(type=>{
+        const btn = document.createElement('button');
+        btn.className = 'vehicle-btn';
+        btn.type = 'button';
+        btn.setAttribute('data-type', type.id);
+        btn.setAttribute('aria-pressed', 'false');
+        btn.innerHTML = `
+          <div class="vehicle-icon">${type.icon}</div>
+          <div class="vehicle-info">
+            <b>${type.name}</b>
+            <small>${type.description}</small>
+          </div>
+          <div style="font-weight:700;color:var(--muted)">${type.options[0].price}+</div>
+        `;
+        btn.addEventListener('click',()=>selectType(type.id));
+        vehicleList.appendChild(btn);
+      });
+    }
+
+    // select vehicle type
+    function selectType(typeId){
+      selectedType = data.find(d=>d.id===typeId);
+      selectedOption = null;
+      // update active button UI
+      Array.from(vehicleList.children).forEach(btn=>{
+        const tid = btn.getAttribute('data-type');
+        if(tid===typeId){ btn.classList.add('active'); btn.setAttribute('aria-pressed','true'); }
+        else{ btn.classList.remove('active'); btn.setAttribute('aria-pressed','false'); }
+      });
+      // update main area
+      mainTitle.textContent = selectedType.name;
+      subText.textContent = selectedType.description;
+      renderOptions();
+      updateTotal();
+    }
+
+    // render sub-options
+    function renderOptions(){
+      optionsGrid.innerHTML = '';
+      selectedType.options.forEach(opt=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.setAttribute('role','button');
+        card.setAttribute('tabindex','0');
+        card.setAttribute('data-opt', opt.id);
+        card.innerHTML = `
+          <div class="title">${opt.name}</div>
+          <div class="price">${formatRupee(opt.price)}</div>
+          <div class="note">${opt.note}</div>
+        `;
+        card.addEventListener('click', ()=> selectOption(opt.id));
+        card.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') selectOption(opt.id); });
+        optionsGrid.appendChild(card);
+      });
+    }
+
+    function selectOption(optId){
+      selectedOption = selectedType.options.find(o=>o.id===optId);
+      // mark selected
+      Array.from(optionsGrid.children).forEach(c=>{
+        if(c.getAttribute('data-opt')===optId) c.classList.add('selected');
+        else c.classList.remove('selected');
+      });
+      updateTotal();
+    }
+
+    function updateTotal(){
+      const amt = selectedOption ? selectedOption.price : 0;
+      totalAmount.textContent = formatRupee(amt);
+    }
+
+    // open modal to complete order
+    function openCompleteDialog(){
+      if(!selectedType || !selectedOption){
+        alert('Please choose a vehicle type and an option before completing order.');
+        return;
+      }
+      orderSummaryText.textContent = ${selectedType.name} — ${selectedOption.name}. Price: ${formatRupee(selectedOption.price)}.;
+      tableInput.value = '';
+      overlay.style.display = 'flex';
+      overlay.setAttribute('aria-hidden','false');
+      tableInput.focus();
+    }
+
+    // confirm dialog (simulate payment)
+    function confirmOrder(){
+      const id = tableInput.value.trim() || 'N/A';
+      overlay.style.display = 'none';
+      overlay.setAttribute('aria-hidden','true');
+
+      // simple confirmation message
+      const msg = Order confirmed!\nVehicle: ${selectedType.name} — ${selectedOption.name}\nPrice: ${formatRupee(selectedOption.price)}\nPickup: ${id};
+      alert(msg);
+      // reset selection after order
+      resetAll();
+    }
+
+    // reset everything
+    function resetAll(){
+      selectedType = null;
+      selectedOption = null;
+      document.querySelectorAll('.vehicle-btn').forEach(b=>{ b.classList.remove('active'); b.setAttribute('aria-pressed','false') });
+      mainTitle.textContent = 'Select a vehicle type';
+      subText.textContent = 'Available options & pricing will appear here.';
+      optionsGrid.innerHTML = '<div class="small">No vehicle selected yet — pick a type on the left.</div>';
+      updateTotal();
+    }
+
+    // initial render
+    renderVehicleButtons();
+
+    // event handlers
+    completeOrderBtn.addEventListener('click', openCompleteDialog);
+    viewSummaryBtn.addEventListener('click', ()=>{
+      if(!selectedType || !selectedOption){ alert('No selection yet.'); return; }
+      alert(Summary:\n${selectedType.name} - ${selectedOption.name}\nPrice: ${formatRupee(selectedOption.price)});
+    });
+    resetBtn.addEventListener('click', resetAll);
+    cancelDialog.addEventListener('click', ()=>{
+      overlay.style.display = 'none';
+      overlay.setAttribute('aria-hidden','true');
+    });
+    confirmDialog.addEventListener('click', confirmOrder);
+
+    // close modal on overlay click (but not when clicking dialog)
+    overlay.addEventListener('click', (e)=>{
+      if(e.target === overlay){
+        overlay.style.display = 'none';
+        overlay.setAttribute('aria-hidden','true');
+      }
+    });
+
+    // keyboard accessibility: Esc closes dialog
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        if(overlay.style.display === 'flex'){
+          overlay.style.display = 'none';
+          overlay.setAttribute('aria-hidden','true');
+        } else {
+          // reset selections on Esc (optional)
+        }
+      }
+    });
+
+    // helpful demo behavior: auto-select first type on load (uncomment if desired)
+    // selectType(data[0].id);
+  </script>
+</body>
+</html>
